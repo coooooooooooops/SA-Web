@@ -1,24 +1,21 @@
 # SA Web
 
 GTA San Andreas (PS2) in your browser. Bring your own PS2 BIOS and your own game disc image.
-Nothing is uploaded; the BIOS, disc and saves stay in the browser.
+Nothing is uploaded; the BIOS, disc and saves stay in the browser. Installable as an app, and works offline
+after the first visit.
 
 Based on [TabStationToo](https://github.com/TabStationToo/TabStationToo), which runs
-[PCSX2](https://github.com/PCSX2/pcsx2) compiled to WebAssembly. GPL-3.0, see COPYING.GPLv3 in that repo.
-This repo contains no game, BIOS or disc data.
+[PCSX2](https://github.com/PCSX2/pcsx2) compiled to WebAssembly (GPL-3.0). This repo contains no game, BIOS or disc data.
 
 ## Deploy on Cloudflare Pages
 
-1. Put these files in the repo root, together with the emulator build: `pcsx2-wasm.js`, `pcsx2-wasm.wasm`,
-   `pcsx2-wasm.data` (and any other files the TabStationToo build puts next to its index.html).
-2. Cloudflare Pages: connect the repo, build command empty, output directory `/`.
-3. `_headers` makes the page cross-origin isolated (needed for the emulator's threads).
-   `coi-serviceworker.js` is the fallback if a host can't send headers.
+Connect the repo, leave the build command empty, set the output directory to `/` (the repo root).
+That's all: `functions/_middleware.js` supplies the emulator files (`pcsx2-wasm.js`, `.wasm`, `.data`,
+`game-titles.tsv`) from TabStationToo's site, and `_headers` makes the page cross-origin isolated.
 
-## What changed from TabStationToo
+To pin a version instead, commit those files to the repo root: a committed file always wins.
 
-- New launcher: the PS2 console and tray are gone; the disc is the hero. BIOS, disc, Play.
-- Opens full window; Fullscreen or Small window; 4:3 or 16:9 picture shape.
-- Controls panel (remap keyboard and gamepad buttons) from the bar.
-- Recognises San Andreas discs (serials SLUS-20552, SLES-52712, or by title/file name).
-- SA theme, logo, Archivo type (SIL OFL).
+## Offline and install
+
+`sw.js` keeps the page and the emulator in the browser. Open the site once online, then it starts offline and
+can be installed from the browser's address bar (Install app).

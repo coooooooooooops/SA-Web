@@ -5668,6 +5668,16 @@
 		chooseBios: () => openPicker(),
 		// A file dropped on the library's BIOS step (a disc image there goes to the disc, as on the slate).
 		takeBios: (file) => acceptFile(file, null),
+		// SA Web's launcher picks the BIOS file itself: it goes straight to the BIOS (no disc check), and why it
+		// can't be taken now is said in the launcher ('' when it can).
+		takeBiosFile: (file) => acceptBiosFile(file),
+		biosBlocked() {
+			if (page.phase === 'dead' || page.phase === 'unsupported')
+				return page.error || 'The emulator didn’t load. Reload the page, and check your connection.';
+			if (!canChangeBios())
+				return COPY.dropBlocked;
+			return '';
+		},
 		// Eject while a game runs: the PS2 stops, and the library comes back once it has.
 		stop: () => stop(),
 		// A line in the subtitle, for a library button that can't open it now (Eject while the PS2 runs).

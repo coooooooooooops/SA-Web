@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "include": ["/pcsx2-wasm.js", "/pcsx2-wasm.wasm", "/pcsx2-wasm.data", "/game-titles.tsv"],
+  "exclude": []
+}

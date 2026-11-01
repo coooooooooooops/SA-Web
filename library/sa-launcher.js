@@ -142,6 +142,7 @@ const MARKUP = `
   <div class="sal-drop" aria-hidden="true"><span>Drop your BIOS or disc image</span></div>
   <input type="file" data-el="fileInput" accept="${DISC_EXT.join(',')}" hidden>
   <input type="file" data-el="folderInput" webkitdirectory multiple hidden>
+  <input type="file" data-el="biosInput" hidden>
 </div>`;
 
 // ---- the last disc, remembered on this device (a file handle, Chromium only)
@@ -239,7 +240,51 @@ export function createDiscLibrary(root, { host = null, onBooted = () => {} } = {
 		renderPlay();
 	}
 
-	els.biosBtn.addEventListener('click', () => host && host.chooseBios());
+	// The BIOS file is picked here (any name: dumps are called .bin, .rom, scph...) and handed to the page.
+	function takeBios(file) {
+		if (!file || !host)
+			return;
+		const why = host.biosBlocked ? host.biosBlocked() : '';
+		if (why) {
+			note(why);
+			return;
+		}
+		note('');
+		biosWas = '';
+		if (host.takeBiosFile)
+			host.takeBiosFile(file);
+		else
+			host.takeBios(file);
+		setTimeout(renderBios, 150);
+	}
+
+	els.biosBtn.addEventListener('click', async () => {
+		if (!host)
+			return;
+		const why = host.biosBlocked ? host.biosBlocked() : '';
+		if (why) {
+			note(why);
+			return;
+		}
+		note('');
+		if (typeof window.showOpenFilePicker === 'function') {
+			try {
+				const [h] = await window.showOpenFilePicker({ id: 'sa-web-bios', multiple: false });
+				takeBios(await h.getFile());
+			} catch (err) {
+				if (!err || err.name !== 'AbortError')
+					els.biosInput.click();
+			}
+			return;
+		}
+		els.biosInput.click();
+	});
+	els.biosInput.addEventListener('change', () => {
+		const f = els.biosInput.files && els.biosInput.files[0];
+		els.biosInput.value = '';
+		if (f)
+			takeBios(f);
+	});
 
 	// ---- game step
 
@@ -402,8 +447,10 @@ export function createDiscLibrary(root, { host = null, onBooted = () => {} } = {
 		if (!files.length)
 			return;
 		const ok = await adopt(files, null);
-		if (!ok && files.length === 1 && host && host.takeBios)
-			host.takeBios(files[0]); // not a disc: the BIOS
+		if (!ok && files.length === 1) {
+			note('');
+			takeBios(files[0]); // not a disc: the BIOS
+		}
 	});
 
 	// ---- Play
@@ -471,6 +518,12 @@ export function createDiscLibrary(root, { host = null, onBooted = () => {} } = {
 
 	function tick() {
 		renderBios();
+		// The emulator failing to load is why nothing else works: say so here, where the person is looking.
+		if (host && mode === 'setup' && host.biosBlocked) {
+			const v = host.status().view;
+			if (v === 'dead' || v === 'unsupported')
+				note(host.biosBlocked());
+		}
 	}
 
 	async function restoreLast() {

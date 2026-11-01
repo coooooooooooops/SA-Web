@@ -164,6 +164,31 @@
 	else
 		build();
 
+
+	// ---- offline and isolation: sw.js keeps the page and the emulator in this browser, and adds the isolation
+	// headers on hosts that don't send them (one reload, the first time only).
+	if ('serviceWorker' in navigator && window.isSecureContext) {
+		const needsIsolation = window.crossOriginIsolated === false;
+		const KEY = 'sa-web.swReload';
+		const reloadOnce = () => {
+			try {
+				const n = Number(sessionStorage.getItem(KEY) || 0);
+				if (n >= 2)
+					return;
+				sessionStorage.setItem(KEY, String(n + 1));
+			} catch {
+				return;
+			}
+			location.reload();
+		};
+		if (needsIsolation && !navigator.serviceWorker.controller)
+			navigator.serviceWorker.addEventListener('controllerchange', reloadOnce, { once: true });
+		window.addEventListener('load', () => {
+			navigator.serviceWorker.register('sw.js').catch(() => {});
+			navigator.serviceWorker.ready.then((r) => r.active && r.active.postMessage('cache-big')).catch(() => {});
+		});
+	}
+
 	// Esc closes the Controls panel (unless the page used it to cancel a remap).
 	document.addEventListener('keydown', (e) => {
 		if (e.key === 'Escape' && document.body.dataset.panel === 'controls' && !e.defaultPrevented)
