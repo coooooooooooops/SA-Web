@@ -145,6 +145,11 @@
 			chip('sa-controls', 'Controls', () => window.SAWeb.controls()),
 			chip('sa-shape', 'Shape', () => window.SAWeb.setAspect(aspect === '4:3' ? '16:9' : '4:3')),
 			chip('sa-size', 'Window', () => window.SAWeb.setView(pref === 'full' ? 'small' : 'full')),
+			chip('sa-more', 'More', () => {
+				const on = document.body.dataset.more !== 'on';
+				if (on) document.body.dataset.more = 'on'; else delete document.body.dataset.more;
+				chips['sa-more'].setAttribute('aria-expanded', on ? 'true' : 'false');
+			}),
 			chip('sa-about', 'About', () => {
 				const b = document.getElementById('about-btn');
 				if (b)

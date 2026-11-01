@@ -14,7 +14,6 @@ import { createDiscLibrary } from './sa-launcher.js';
 const host = window.PCSX2WebLibrary;
 const dialog = document.getElementById('library');
 const root = document.getElementById('library-root');
-const closeBtn = document.getElementById('library-close');
 const openers = [document.getElementById('slate-library'), document.getElementById('disc-menu-library')];
 // On the console's front (UI-SPEC §16): Eject, and the empty tray.
 const consoleOpeners = [document.getElementById('btn-eject'), document.getElementById('tray-library')];
@@ -82,15 +81,8 @@ if (host && dialog && root) {
 		if (lib && dialog.open)
 			lib.pad(action);
 	});
-	closeBtn.addEventListener('click', () => {
-		if (!lib?.busy)
-			dialog.close();
-	});
-	// Esc closes the library, except while a disc goes in: the boot it started is under way.
-	dialog.addEventListener('cancel', (e) => {
-		if (lib?.busy)
-			e.preventDefault();
-	});
+	// The start menu is home: it has no Close button, and Esc leaves it open too.
+	dialog.addEventListener('cancel', (e) => e.preventDefault());
 	// Keys and drops in the library are the library's: the player's shortcuts, Esc handling and drop
 	// target (window listeners in app.js) never see them.
 	for (const type of ['keydown', 'keyup', 'dragenter', 'dragover', 'dragleave', 'drop'])

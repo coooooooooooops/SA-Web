@@ -787,3 +787,11 @@ dialog.about::backdrop {
   width: 20px;
   height: 20px;
 }
+
+/* ---- Tidy play bar: only what a player needs. Everything else sits behind "More". */
+.bar-slot, .bar-port, .bar-led, #bios-btn, #disc-btn, #tray-library, #btn-eject, .card-btn { display: none !important; }
+body:not([data-more="on"]) :is(#btn-crisp, #btn-gfx, #btn-ee, #btn-log, #btn-rec, #sa-shape, #sa-size, #sa-about) { display: none !important; }
+body[data-more="on"] #sa-more { border-color: var(--sa-orange, #ff8a1f); }
+
+/* ---- No "Stopped." screen: stopping goes straight back to the start menu. */
+body[data-state="stopped"] .slate { display: none !important; }
