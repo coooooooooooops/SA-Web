@@ -1,0 +1,789 @@
+/* SA Web theme. Loaded after style.css and console-pads.css; replaces the console, the TV and the
+   remote with a full-window player and a slim control bar. Page state is still styled through
+   body[data-*] (app.js render()); the screen size is html[data-view="full" | "small"] (sa-shell.js).
+   Type: Archivo (SIL OFL), self-hosted. Heavy, expanded and slanted for display, regular for text. */
+
+:root {
+  --sa-asphalt: #0a0a0b;
+  --sa-concrete: #151516;
+  --sa-raise: #1e1e20;
+  --sa-line: #2a2a2c;
+  --sa-ink: #f3efe6;
+  --sa-ash: #a09c93;
+  --sa-orange: #ff8a1f;
+  --sa-orange-hi: #ffa34d;
+  --sa-orange-lo: #e07410;
+  --sa-grove: #3dbb4a;
+  --sa-warn: #ffc233;
+  --sa-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --sa-text: "Archivo", ui-sans-serif, system-ui, sans-serif;
+
+  /* The tokens style.css and the drawers read, re-pointed. */
+  --house: var(--sa-asphalt);
+  --house-down: #000;
+  --slate: var(--sa-concrete);
+  --raise: var(--sa-raise);
+  --line: var(--sa-line);
+  --line-2: #6e6a63;
+  --ink: var(--sa-ink);
+  --ink-2: var(--sa-ash);
+  --ink-3: #8f8b82;
+  --amber: var(--sa-orange);
+  --amber-hover: var(--sa-orange-hi);
+  --amber-pressed: var(--sa-orange-lo);
+  --amber-ink: #1b0d00;
+  --sand: #9fd7a4;
+  --band: rgb(8 8 9 / 0.9);
+  --hud-h: 56px;
+}
+
+html,
+body {
+  background: var(--sa-asphalt);
+}
+
+/* ---------------------------------------------------------------- what the SA player drops */
+
+.marquee,
+.credits,
+.tv,
+.ps2bar-art,
+.cables,
+.rm-ir,
+.rm-rocker,
+.rm-cap,
+.bar-led,
+.plug,
+.plug-boot,
+.mc,
+.mc-name,
+.card-btn .caret,
+.card-btn .card-icon,
+.bar-tray-hint,
+#about-btn,
+.stage-box + .sill .tally,
+.meter .tally {
+  display: none !important;
+}
+
+/* The controllers live in the Controls panel now, not on the floor under the console. */
+.pads {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- full window (the default) */
+
+html[data-view="full"],
+html[data-view="full"] body {
+  height: 100%;
+  overflow: hidden;
+}
+
+html[data-view="full"] .room,
+html[data-view="full"] .theatre {
+  position: fixed;
+  inset: 0;
+  display: block;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  background: #000;
+}
+
+html[data-view="full"] .stage-box {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  container-type: size;
+}
+
+html[data-view="full"] .screen,
+html[data-view="full"] .slate {
+  width: min(100cqw, calc(100cqh * 4 / 3));
+  border-radius: 0;
+  translate: none;
+  outline: none;
+}
+
+/* ---------------------------------------------------------------- small: a compact window */
+
+html[data-view="small"] body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+html[data-view="small"] .room {
+  display: block;
+  width: min(760px, 94vw);
+  height: auto;
+  min-height: 0;
+}
+
+html[data-view="small"] .theatre {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  padding: 0;
+  border: 1px solid var(--sa-line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 30px 80px rgb(0 0 0 / 0.7);
+}
+
+html[data-view="small"] .stage-box {
+  display: grid;
+  padding: 0;
+  container-type: inline-size;
+}
+
+html[data-view="small"] .screen,
+html[data-view="small"] .slate {
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+  translate: none;
+  outline: none;
+}
+
+/* ---------------------------------------------------------------- picture shape */
+
+/* 16:9: the emulator still draws a 4:3 frame (the canvas keeps its 4:3 box, so the game's own widescreen
+   option comes out right) and the browser stretches it. */
+html[data-aspect="wide"] .screen {
+  aspect-ratio: 16 / 9;
+}
+
+html[data-aspect="wide"] .screen canvas {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 12.5%;
+  width: 75%;
+  height: 100%;
+  transform: scaleX(1.33334);
+}
+
+html[data-aspect="wide"][data-view="full"] .screen,
+html[data-aspect="wide"][data-view="full"] .slate {
+  width: min(100cqw, calc(100cqh * 16 / 9));
+}
+
+html[data-aspect="wide"][data-view="small"] .slate {
+  aspect-ratio: 16 / 9;
+}
+
+html[data-aspect="wide"] .slate {
+  aspect-ratio: 16 / 9;
+}
+
+.screen {
+  position: relative;
+  background: #000;
+}
+
+.screen canvas {
+  display: block;
+}
+
+/* ---------------------------------------------------------------- slate: the message over the picture */
+
+.slate {
+  display: grid;
+  align-items: center;
+  background: radial-gradient(120% 90% at 20% 110%, rgb(255 122 26 / 0.18), transparent 60%), #0a0a0b;
+}
+
+.slate-inner {
+  padding: clamp(20px, 5cqw, 64px);
+}
+
+.slate h2,
+#slate-title {
+  font: 900 clamp(24px, 4.2cqw, 48px)/1.04 var(--sa-display);
+  font-stretch: 125%;
+  letter-spacing: -0.01em;
+  transform: skewX(-6deg);
+  transform-origin: left bottom;
+  text-wrap: balance;
+}
+
+.btn-primary {
+  border-radius: 12px;
+  background: var(--sa-orange);
+  color: #1b0d00;
+  font-weight: 800;
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.16);
+}
+
+.btn-primary:hover {
+  background: var(--sa-orange-hi);
+}
+
+.btn-primary:active {
+  background: var(--sa-orange-lo);
+}
+
+.hairline {
+  background: transparent;
+}
+
+.hairline-fill {
+  background: var(--sa-orange);
+}
+
+/* ---------------------------------------------------------------- the control bar */
+
+html[data-view="full"] .transport,
+html[data-view="small"] .transport {
+  justify-self: stretch;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: none;
+  margin: 0;
+  padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
+  background: var(--band);
+  border-top: 1px solid var(--sa-line);
+}
+
+html[data-view="full"] .sill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--hud-h) + 4px);
+  z-index: 18;
+  justify-self: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+
+html[data-view="full"] .sill > * {
+  pointer-events: auto;
+}
+
+html[data-view="full"] .transport {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  min-height: var(--hud-h);
+}
+
+html[data-view="small"] .sill {
+  width: 100%;
+  box-sizing: border-box;
+  justify-self: stretch;
+  margin: 0;
+  padding: 6px 14px;
+  background: #060607;
+}
+
+html[data-view="full"] .drawer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--hud-h) + 4px);
+  z-index: 19;
+  justify-self: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  max-height: calc(100dvh - var(--hud-h) - 24px);
+  overflow: auto;
+  margin: 0;
+  padding-inline: 16px;
+  background: var(--band);
+  border-top: 1px solid var(--sa-line);
+}
+
+.ps2bar,
+.remote {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  height: auto;
+  aspect-ratio: auto;
+  margin: 0 !important;
+  padding: 0;
+  zoom: 1 !important;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.ps2bar > *,
+.remote > * {
+  position: static;
+}
+
+/* A chip: every control of the bar, whatever it was on the old console. */
+.bar-slot {
+  display: contents;
+}
+
+.ps2bar .bar-hot,
+.bar-slot .card-btn,
+.remote .rm-btn {
+  position: relative;
+  inset: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: auto;
+  height: auto;
+  min-width: 40px;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid var(--sa-line);
+  border-radius: 10px;
+  background: rgb(30 30 32 / 0.9);
+  color: var(--sa-ink);
+  font: 700 13px/1 var(--sa-text);
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+  translate: none;
+  box-shadow: none;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+}
+
+.ps2bar .bar-hot:hover,
+.bar-slot .card-btn:hover,
+.remote .rm-btn:hover {
+  background: #2a2a2d;
+  border-color: #4a4a4e;
+}
+
+.ps2bar .bar-hot:focus-visible,
+.bar-slot .card-btn:focus-visible,
+.remote .rm-btn:focus-visible {
+  outline: 3px solid var(--sa-orange-hi);
+  outline-offset: 2px;
+}
+
+.ps2bar .bar-hot[aria-expanded="true"],
+.bar-slot .card-btn[aria-expanded="true"],
+.remote .rm-btn:is([aria-expanded="true"], [aria-pressed="true"], .on) {
+  border-color: var(--sa-orange);
+  color: var(--sa-ink);
+}
+
+.remote .rm-btn::after {
+  display: none;
+}
+
+/* Labels the console had in print or not at all. */
+#port-1::before,
+#port-2::before {
+  content: "Player " attr(data-port);
+}
+
+#port-1[aria-pressed="true"],
+#port-2[aria-pressed="true"] {
+  border-color: var(--sa-grove);
+}
+
+#port-1[aria-pressed="true"]::before,
+#port-2[aria-pressed="true"]::before {
+  content: "Player " attr(data-port) " ●";
+  color: #8bdc94;
+}
+
+#btn-stop::before {
+  content: "Stop";
+}
+
+#btn-eject::before {
+  content: "Games";
+}
+
+#bios-btn::before {
+  content: "BIOS";
+  color: var(--sa-ash);
+}
+
+#disc-btn::before {
+  content: "Disc";
+  color: var(--sa-ash);
+}
+
+.bios-btn-name {
+  max-width: 18ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--sa-ink);
+}
+
+.card-btn .card-label {
+  display: inline;
+  max-width: none;
+  color: var(--sa-ink);
+}
+
+#tray-library {
+  display: none !important;
+}
+
+#remote-vol-down,
+#remote-vol-up {
+  min-width: 40px;
+  padding: 0;
+  font-size: 18px;
+}
+
+#remote-vol-down {
+  border-radius: 10px 0 0 10px;
+  margin-right: -7px;
+}
+
+#remote-vol-up {
+  border-radius: 0 10px 10px 0;
+}
+
+#btn-crisp::before {
+  content: "Picture";
+}
+
+.rm-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.rm-round {
+  border-radius: 10px;
+}
+
+.rm-pill,
+.rm-small {
+  width: auto;
+}
+
+#btn-gfx {
+  font-size: 0;
+}
+
+#btn-gfx::before {
+  content: "Graphics";
+  font-size: 13px;
+}
+
+#btn-state {
+  font-size: 0;
+}
+
+#btn-state::before {
+  content: "Save states";
+  font-size: 13px;
+}
+
+#btn-ee {
+  font-size: 0;
+}
+
+#btn-ee::before {
+  content: "Speed";
+  font-size: 13px;
+}
+
+#btn-log {
+  font-size: 0;
+}
+
+#btn-log::before {
+  content: "Info";
+  font-size: 13px;
+}
+
+#btn-rec {
+  font-size: 13px;
+}
+
+/* The controls added by SA Web (sa-shell.js): Controls, Window size, Picture shape. */
+.sa-chip::before {
+  content: attr(data-label);
+}
+
+.sa-chip[data-on="true"] {
+  border-color: var(--sa-orange);
+}
+
+.ps2bar .tip,
+.remote .tip,
+.card-btn .tip {
+  display: none !important;
+}
+
+/* The tray's title row: nothing prints on a tray any more. */
+body[data-disc="none"] #disc-btn {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- readout and subtitle */
+
+.capture {
+  font: 600 13px/1 var(--sa-text);
+  color: var(--sa-ash);
+}
+
+.capture-btn {
+  border-radius: 10px;
+}
+
+.readout {
+  font-family: var(--sa-text);
+  font-size: 12px;
+  color: var(--sa-ash);
+  background: rgb(0 0 0 / 0.55);
+  padding: 4px 9px;
+  border-radius: 8px;
+}
+
+.subtitle {
+  font: 600 14px/1.3 var(--sa-text);
+}
+
+/* ---------------------------------------------------------------- hide the bar while playing */
+
+body[data-chrome="hidden"] .transport,
+body[data-chrome="hidden"] .sill {
+  opacity: 0;
+  pointer-events: none;
+}
+
+html[data-view="full"] .transport:focus-within,
+html[data-view="full"] .sill:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---------------------------------------------------------------- popover menus */
+
+.menu {
+  border: 1px solid var(--sa-line);
+  border-radius: 12px;
+  background: #121213;
+  color: var(--sa-ink);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 0.6);
+}
+
+.menu-item {
+  border-radius: 8px;
+}
+
+/* ---------------------------------------------------------------- drawers: keys, log, recorder */
+
+.drawer {
+  background: var(--band);
+  color: var(--sa-ink);
+}
+
+.port-pick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 12px;
+}
+
+.port-pick > .lbl {
+  margin: 0;
+}
+
+.port-pick-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.port-opt {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--sa-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--sa-ash);
+  font: 600 13px/18px var(--sa-text);
+  cursor: pointer;
+}
+
+.port-opt:hover {
+  background: var(--sa-raise);
+  color: var(--sa-ink);
+}
+
+.port-opt[aria-pressed="true"] {
+  border-color: var(--sa-orange);
+  color: var(--sa-ink);
+}
+
+.port-opt:focus-visible {
+  outline: 3px solid var(--sa-orange-hi);
+  outline-offset: 2px;
+}
+
+.port-pick-hint {
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--ink-3);
+}
+
+/* ---------------------------------------------------------------- Controls: remap keys and buttons */
+
+/* The panel is the two controllers that used to lie on the floor. Click a button on one to change what plays it. */
+body[data-panel="controls"] .pads {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  margin: 0;
+  box-sizing: border-box;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: max(72px, env(safe-area-inset-top)) clamp(16px, 4vw, 56px) 32px;
+  overflow: auto;
+  background: #08080a;
+  color: var(--sa-ink);
+}
+
+body[data-panel="controls"] .pads-title {
+  margin: 0;
+  font: 900 clamp(26px, 3.4vw, 40px)/1.05 var(--sa-display);
+  font-stretch: 125%;
+  letter-spacing: -0.01em;
+  transform: skewX(-6deg);
+  color: var(--sa-ink);
+  text-transform: none;
+}
+
+body[data-panel="controls"] .pads-title::after {
+  content: "Click a button on a controller, then press the key or gamepad button you want for it.";
+  display: block;
+  margin-top: 8px;
+  font: 400 15px/1.45 var(--sa-text);
+  font-stretch: 100%;
+  letter-spacing: 0;
+  transform: none;
+  color: var(--sa-ash);
+}
+
+body[data-panel="controls"] .pads-row {
+  width: min(1240px, 100%);
+}
+
+.sa-panel-close {
+  display: none;
+}
+
+body[data-panel="controls"] .sa-panel-close {
+  position: fixed;
+  z-index: 61;
+  top: max(18px, env(safe-area-inset-top));
+  right: max(24px, env(safe-area-inset-right));
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid #46464a;
+  border-radius: 999px;
+  background: #121213;
+  color: var(--sa-ink);
+  font: 700 14px/1 var(--sa-text);
+  cursor: pointer;
+}
+
+body[data-panel="controls"] .sa-panel-close:hover {
+  border-color: var(--sa-orange);
+}
+
+/* ---------------------------------------------------------------- About */
+
+dialog.about {
+  border: 1px solid var(--sa-line);
+  border-radius: 18px;
+  background: #121213;
+  color: var(--sa-ink);
+}
+
+dialog.about h2 {
+  font: 900 28px/1.1 var(--sa-display);
+  font-stretch: 125%;
+  transform: skewX(-6deg);
+  transform-origin: left bottom;
+}
+
+dialog.about::backdrop {
+  background: rgb(0 0 0 / 0.8);
+}
+
+/* ---------------------------------------------------------------- phones */
+
+@media (max-width: 720px) {
+  html[data-view="full"] .transport {
+    padding-inline: 8px;
+  }
+
+  .ps2bar .bar-hot,
+  .bar-slot .card-btn,
+  .remote .rm-btn {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+}
+
+@media (forced-colors: active) {
+  .ps2bar .bar-hot,
+  .bar-slot .card-btn,
+  .remote .rm-btn {
+    border-color: ButtonText;
+  }
+}
+
+#btn-fs svg {
+  display: none;
+}
+
+#btn-fs::before {
+  content: "Fullscreen";
+}
+
+#btn-fs[hidden],
+#btn-crisp[hidden] {
+  display: none !important;
+}
+
+#remote-mute svg {
+  width: 20px;
+  height: 20px;
+}
